@@ -1,4 +1,9 @@
 /node_modules
-
+/coverage
+/documentation
 # Build files
 /dist
+/test-report
+
+eslint-errors.txt
+.npmrc
