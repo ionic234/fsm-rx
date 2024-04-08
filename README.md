@@ -4,6 +4,17 @@
 
 Finite State Machine built upon RxJS and Typescript. 
 
+## What is FsmRx 
+
+FsmRx allows developers to organise code into discrete states, each with their own strongly typed dataset. 
+Transitions between these states are governed by an allowlist giving developers more control and visibility over program flow. 
+Transitions also support the lifecycle hooks onLeave, onEnter and onUpdate. 
+These callbacks are supplied data scoped to the relevant transition states and can be used for the implementation of any required build-up and teardown of state-specific interactions, logic, or calls.
+
+FsmRx greatly reduces code complexity, speeding up development time while resulting in easier-to-maintain bug-free code.
+
+Please visit [here](https://ionic234.github.io/ngx-fsm-rx-examples) for a deep dive into all FsmRx has to offer.
+
 ## Related projects
 
 * [NgxFsmRx](https://github.com/ionic234/ngx-fsm-rx): An Angular Wrapper for FsmRx
