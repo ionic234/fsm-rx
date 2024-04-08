@@ -477,6 +477,9 @@ export type StateOverride<
  */
 export type StateDiagramDirections = "TB" | "LR";
 
+/**
+ * Base config options that apply to all FsmRx classes.
+ */
 export type BaseFsmConfig = {
     outputTransitionRejectionToConsole: boolean,
     filterRepeatUpdates: boolean,
@@ -492,6 +495,7 @@ export type BaseFsmConfig = {
  * A configuration object that controls the availability of certain debugging features.
  * @template TState String union of the custom states of the finite state machine.
  * @template TStateData The data associated with each state.
+ * @template TCanLeaveToStatesMap A map specifying the states a given state can leave to.
  */
 export type FsmConfig<
     TState extends string,

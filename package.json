@@ -1,12 +1,13 @@
 {
   "name": "fsm-rx",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Finite State Machine built upon RxJS and Typescript",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build:dev": "tsup",
