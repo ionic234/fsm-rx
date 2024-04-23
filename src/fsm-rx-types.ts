@@ -505,6 +505,11 @@ export type FsmConfig<
     stateOverride: StateOverride<TState, TStateData, TCanLeaveToStatesMap> | false,
 };
 
+export type StateData<TState extends string, TStateData extends BaseStateData<TState>> = TStateData | FSMInitStateData;
+
+
+
+
 /**
  * The data supplied to a state transition.
  * @template TState String union of the custom states of the finite state machine.
@@ -515,7 +520,7 @@ export type StateTransition<
     TStateData extends BaseStateData<TState>
 > = {
     transitionType: TransitionTypes,
-    stateData: TStateData | FSMInitStateData;
+    stateData: StateData<TState, TStateData>;
 };
 
 /**
@@ -550,7 +555,7 @@ export type DebugLogEntry<
     TState extends string,
     TStateData extends BaseStateData<TState>
 > = {
-    stateData: (TStateData | FSMInitStateData) | string;
+    stateData: (StateData<TState, TStateData>) | string;
     transitionType: TransitionTypes,
     result: TransitionResult,
     timeStamp: number;
