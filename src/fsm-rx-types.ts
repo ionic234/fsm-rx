@@ -489,6 +489,7 @@ export type BaseFsmConfig = {
     resetDebugLogOnOverride: boolean;
     recordResetDataToDebugLog: boolean;
     stateDiagramDirection: StateDiagramDirections;
+    name: string | false;
 };
 
 /**
@@ -506,9 +507,6 @@ export type FsmConfig<
 };
 
 export type StateData<TState extends string, TStateData extends BaseStateData<TState>> = TStateData | FSMInitStateData;
-
-
-
 
 /**
  * The data supplied to a state transition.
@@ -595,3 +593,13 @@ export type ChangeStateData<
         state: CanLeaveToStates<TState, Key, TCanLeaveToStatesMap>;
     }>
 }[TCurrentState];
+
+
+/**
+ * The name of the state a transition is leaving and entering;
+ * @template TState String union of the custom states of the finite state machine.
+ */
+export type TransitionStates<TState extends string> = {
+    leavingState: FSMInit | TState;
+    enteringState: TState;
+};

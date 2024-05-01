@@ -1,6 +1,6 @@
 import deepEqual from "deep-equal";
 import { BehaviorSubject, Observable, Subject, filter, map, observeOn, queueScheduler, take, takeUntil, withLatestFrom } from "rxjs";
-import { BaseStateData, CanLeaveToStates, CanLeaveToStatesArrays, CanLeaveToStatesMap, ChangeStateData, CurrentStateInfo, DebugLogEntry, FSMInit, FSMInitStateData, FSMTerminate, FsmConfig, OnEnterEnteringStateInfo, OnEnterLeavingStateInfo, OnLeaveEnteringStateInfo, OnLeaveLeavingStateInfo, OnUpdateStateTransitionInfo, OverridingStateInfo, StateData, StateDiagramDirections, StateMap, StateMetadata, StateOverride, StateTransition, TransitionRejection, TransitionRejectionSeverity, TransitionTypes } from "./fsm-rx-types";
+import { BaseStateData, CanLeaveToStates, CanLeaveToStatesArrays, CanLeaveToStatesMap, ChangeStateData, CurrentStateInfo, DebugLogEntry, FSMInit, FSMInitStateData, FSMTerminate, FsmConfig, OnEnterEnteringStateInfo, OnEnterLeavingStateInfo, OnLeaveEnteringStateInfo, OnLeaveLeavingStateInfo, OnUpdateStateTransitionInfo, OverridingStateInfo, StateData, StateDiagramDirections, StateMap, StateMetadata, StateOverride, StateTransition, TransitionRejection, TransitionRejectionSeverity, TransitionStates, TransitionTypes } from "./fsm-rx-types";
 
 /**
  * An RXJS implementation of a Finite state machine.
@@ -50,16 +50,53 @@ export abstract class FsmRx<
     protected resolvedFsmConfig: FsmConfig<TState, TStateData, TCanLeaveToStatesMap>;
 
     /** If the application is running in dev mode or not. */
-    protected readonly isInDevMode: boolean;
+    private readonly _isInDevMode: boolean;
+
+    /**
+     * Getter for _isInDevMode
+     * @returns _isInDevMode 
+     */
+    public get isInDevMode(): boolean {
+        return this._isInDevMode;
+    }
+
 
     /** A subject used to trigger the completion of observables when the class is destroyed.*/
-    protected destroy$: Subject<void> = new Subject();
+    private _destroy$: Subject<void> = new Subject();
 
-    /** A subject used to trigger the completion of observables when the FSM transitions to a new state.*/
-    protected nextChangeStateTransition$: Subject<void> = new Subject();
+    /** 
+     * Getter for _destroy$
+     * @returns _destroy$ as an Observable<void>
+     */
+    protected get destroy$(): Observable<void> {
+        return this._destroy$.asObservable();
+    }
+
+
+    /** 
+     * A subject used to trigger the completion of observables when the FSM transitions to a new state.
+     * Emits TransitionStates on next; 
+     */
+    private _nextChangeStateTransition$: Subject<TransitionStates<TState>> = new Subject();
+
+    /**
+     * Getter for _nextChangeStateTransition$
+     * @returns _nextChangeStateTransition$ as an Observable<TransitionStates<TState>>
+     */
+    protected get nextChangeStateTransition(): Observable<TransitionStates<TState>> {
+        return this._nextChangeStateTransition$.asObservable();
+    }
 
     /** A subject used to trigger the completion of observables when an override occurs.*/
-    protected override$: Subject<void> = new Subject();
+    private _override$: Subject<void> = new Subject();
+
+    /**
+     * Getter for _override$
+     * @returns _override$ as an Observable<void>
+     */
+    protected get override$(): Observable<void> {
+        return this._override$.asObservable();
+    }
 
     /**
      * A Behavior Subject to which successful transitions of the finite state machine are applied for emission.
@@ -149,7 +186,7 @@ export abstract class FsmRx<
      *              ...
      *              break;
      *          default:
-     *              this.assertCannotReach(currentState);
+     *              FsmRx.assertCannotReach(currentState);
      *     }
      *  });
      * @returns An observable which emits the current state data and completes. 
@@ -179,6 +216,19 @@ export abstract class FsmRx<
             })
         );
     }
+
+
+    /**
+     * @returns An observable which emits the current state data and completes filtering out the state "FSMInit". 
+     */
+    protected get currentStatePostInit(): Observable<CurrentStateInfo<TState, TStateData, TCanLeaveToStatesMap>> {
+        return this.currentState$.pipe(
+            filter((currentState: CurrentStateInfo<TState, TStateData, TCanLeaveToStatesMap>) => {
+                return currentState.state !== "FSMInit";
+            })
+        );
+    }
+
 
     /** 
      * String instructions to draw a state diagram of the finite state machine transitions. 
@@ -218,7 +268,7 @@ export abstract class FsmRx<
         isInDevMode: boolean = process?.env?.['NODE_ENV'] === "development"
     ) {
         this.resolvedFsmConfig = this.extractFsmConfig(fsmConfig, isInDevMode);
-        this.isInDevMode = isInDevMode;
+        this._isInDevMode = isInDevMode;
         const stateOverride: StateOverride<TState, TStateData, TCanLeaveToStatesMap> | false = this.resolvedFsmConfig.stateOverride;
 
         if (stateOverride) {
@@ -280,7 +330,8 @@ export abstract class FsmRx<
             recordFilteredUpdatesToDebugLog: fsmConfig.recordFilteredUpdatesToDebugLog ?? false,
             resetDebugLogOnOverride: !isInDevMode ? false : (fsmConfig.resetDebugLogOnOverride ?? true),
             recordResetDataToDebugLog: fsmConfig.recordResetDataToDebugLog ?? (isInDevMode ? true : false),
-            stateDiagramDirection: fsmConfig.stateDiagramDirection ?? "TB"
+            stateDiagramDirection: fsmConfig.stateDiagramDirection ?? "TB",
+            name: fsmConfig.name ?? false
         };
     }
 
@@ -350,7 +401,7 @@ export abstract class FsmRx<
                         return false;
                     /* istanbul ignore next */
                     default:
-                        this.assertCannotReach(transitionType);
+                        FsmRx.assertCannotReach(transitionType);
                 }
                 /* istanbul ignore next */
                 return false;
@@ -473,7 +524,7 @@ export abstract class FsmRx<
                 break;
             /* istanbul ignore next */
             default:
-                this.assertCannotReach(transitionRejectionSeverity);
+                FsmRx.assertCannotReach(transitionRejectionSeverity);
         }
     }
 
@@ -636,12 +687,12 @@ export abstract class FsmRx<
         if (this.isTState(previousState) && this.isTStateData(previousStateData)) {
             const previousStateMetadata: StateMetadata<TState, typeof previousState, TStateData, TCanLeaveToStatesMap> = this.getStateMetadata(previousState);
             if (!this.filterChangeToProhibitedState(previousState, nextState, previousStateMetadata)) { return false; }
-            this.nextChangeStateTransition$.next();
+            this._nextChangeStateTransition$.next({ leavingState: previousState, enteringState: nextState });
             if (!this.executeOnLeaveHookCallback(previousState, nextState, previousStateData, nextStateData, previousStateMetadata)) { return false; }
         } else {
             // This test will return the same result as filterChangeToProhibitedState so is only required if not running that test. 
             if (!this.filterChangeFromProhibitedState(previousState, nextState, nextStateMetadata)) { return false; }
-            this.nextChangeStateTransition$.next();
+            this._nextChangeStateTransition$.next({ leavingState: previousState, enteringState: nextState });
         }
 
         if (!this.executeOnEnterHookCallback(previousState, nextState, previousStateData, nextStateData, nextStateMetadata)) { return false; }
@@ -848,7 +899,7 @@ export abstract class FsmRx<
      * A defensive programming technique used to throw errors in the IDE when the application changes, highlighting areas that require updating.
      * @param x a value which should never exist. 
      */
-    protected assertCannotReach(x: never): void {
+    public static assertCannotReach(x: never): void {
         throw new Error(`Unreachable code detected. ${x}`);
     }
 
@@ -893,14 +944,20 @@ export abstract class FsmRx<
      */
     protected destroy(): void {
 
-        this.destroy$.next();
-        this.destroy$.complete();
+        this._destroy$.next();
+        this._destroy$.complete();
 
         this._stateData$.complete();
         this._stateData$.unsubscribe();
 
         this.stateTransition$.complete();
         this.stateTransition$.unsubscribe();
+
+        this._override$.complete();
+        this._override$.unsubscribe();
+
+        this._nextChangeStateTransition$.complete();
+        this._nextChangeStateTransition$.unsubscribe();
 
     }
 
@@ -990,7 +1047,7 @@ export abstract class FsmRx<
         const states: (TState | FSMInit)[] = Object.keys(this.canLeaveToStatesArrays) as (TState | FSMInit)[];
         return states.reduce((rData: string, state: TState | FSMInit, i: number) => {
             const canLeaveTo = this.canLeaveToStatesArrays[state] as (TState | FSMTerminate)[];
-            rData = rData.concat(this.generateStateTransition(state, canLeaveTo));
+            rData = rData.concat(this.generateStateDiagramTransition(state, canLeaveTo));
             if (i < states.length - 1) {
                 rData = rData.concat('\n');
             }
@@ -1005,7 +1062,7 @@ export abstract class FsmRx<
      * @param canLeaveTo an array of states the node can leave to. 
      * @returns the instructions to draw a node on the state diagram.
      */
-    protected generateStateTransition(state: TState | FSMInit, canLeaveTo: (TState | FSMTerminate)[]): string {
+    protected generateStateDiagramTransition(state: TState | FSMInit, canLeaveTo: (TState | FSMTerminate)[]): string {
         return canLeaveTo.reduce((rData: string, transitionToState: string, i: number) => {
             const lineEnd: string = i < canLeaveTo.length - 1 ? `\n` : ``;
             const transitionToString: string = transitionToState !== "FSMTerminate" ? transitionToState : "[*]";
@@ -1064,7 +1121,7 @@ export abstract class FsmRx<
             return;
         }
 
-        this.override$.next();
+        this._override$.next();
 
         this.currentState$.subscribe((currentStateInfo: CurrentStateInfo<TState, TStateData, TCanLeaveToStatesMap>) => {
             const overrideTransitionData: StateTransition<TState, TStateData> = { transitionType: "override", stateData: stateOverride.stateData };
