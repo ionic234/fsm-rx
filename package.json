@@ -10,8 +10,7 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "build:dev": "tsup",
-    "build": "tsup --minify",
+    "build": "tsup",
     "build:pipe": "npm run lint && npm run test:ci && npm run compodoc:build && npm run build",
     "watch": "nodemon --exec npx ts-node src/index",
     "lint": "npx eslint src/**",

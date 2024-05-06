@@ -1,4 +1,4 @@
-import { FlattenObject, NeverHasStringValue } from './utils/utils';
+import { FlattenObject, NeverHasStringValue } from '../utils/utils';
 
 /** The initial state of the finite state machine. */
 export type FSMInit = "FSMInit";

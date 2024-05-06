@@ -1,6 +1,6 @@
 import deepEqual from "deep-equal";
 import { BehaviorSubject, Observable, Subject, filter, map, observeOn, queueScheduler, take, takeUntil, withLatestFrom } from "rxjs";
-import { BaseStateData, CanLeaveToStates, CanLeaveToStatesArrays, CanLeaveToStatesMap, ChangeStateData, CurrentStateInfo, DebugLogEntry, FSMInit, FSMInitStateData, FSMTerminate, FsmConfig, OnEnterEnteringStateInfo, OnEnterLeavingStateInfo, OnLeaveEnteringStateInfo, OnLeaveLeavingStateInfo, OnUpdateStateTransitionInfo, OverridingStateInfo, StateData, StateDiagramDirections, StateMap, StateMetadata, StateOverride, StateTransition, TransitionRejection, TransitionRejectionSeverity, TransitionStates, TransitionTypes } from "./fsm-rx-types";
+import { BaseStateData, CanLeaveToStates, CanLeaveToStatesArrays, CanLeaveToStatesMap, ChangeStateData, CurrentStateInfo, DebugLogEntry, FSMInit, FSMInitStateData, FSMTerminate, FsmConfig, OnEnterEnteringStateInfo, OnEnterLeavingStateInfo, OnLeaveEnteringStateInfo, OnLeaveLeavingStateInfo, OnUpdateStateTransitionInfo, OverridingStateInfo, StateData, StateDiagramDirections, StateMap, StateMetadata, StateOverride, StateTransition, TransitionRejection, TransitionRejectionSeverity, TransitionStates, TransitionTypes } from "../../types/fsm-rx-types";
 
 /**
  * An RXJS implementation of a Finite state machine.
@@ -8,7 +8,7 @@ import { BaseStateData, CanLeaveToStates, CanLeaveToStatesArrays, CanLeaveToStat
  * @template TStateData The data associated with each state.
  * @template TCanLeaveToStatesMap An option map specifying the states a given state can leave to.
  */
-export abstract class FsmRx<
+export abstract class FsmRxInheritable<
     TState extends string,
     TStateData extends BaseStateData<TState>,
     TCanLeaveToStatesMap extends CanLeaveToStatesMap<TState>
@@ -401,7 +401,7 @@ export abstract class FsmRx<
                         return false;
                     /* istanbul ignore next */
                     default:
-                        FsmRx.assertCannotReach(transitionType);
+                        FsmRxInheritable.assertCannotReach(transitionType);
                 }
                 /* istanbul ignore next */
                 return false;
@@ -524,7 +524,7 @@ export abstract class FsmRx<
                 break;
             /* istanbul ignore next */
             default:
-                FsmRx.assertCannotReach(transitionRejectionSeverity);
+                FsmRxInheritable.assertCannotReach(transitionRejectionSeverity);
         }
     }
 

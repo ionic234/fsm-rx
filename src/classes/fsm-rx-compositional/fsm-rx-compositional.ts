@@ -1,14 +1,14 @@
 import { Observable } from "rxjs";
-import { FsmRx } from ".";
-import { BaseStateData, CanLeaveToStatesMap, FsmConfig, StateMap, ChangeStateData, FSMInit, TransitionStates } from "./fsm-rx-types";
+import { FsmRxInheritable } from "../..";
+import { BaseStateData, CanLeaveToStatesMap, FsmConfig, StateMap, ChangeStateData, FSMInit, TransitionStates } from "../../types/fsm-rx-types";
 
 /**
  * FsmRx Concrete version 
  */
-export class FsmRxConcrete<
+export class FsmRxCompositional<
     TState extends string,
     TStateData extends BaseStateData<TState>,
-    TCanLeaveToStatesMap extends CanLeaveToStatesMap<TState>> extends FsmRx<TState, TStateData, TCanLeaveToStatesMap> {
+    TCanLeaveToStatesMap extends CanLeaveToStatesMap<TState>> extends FsmRxInheritable<TState, TStateData, TCanLeaveToStatesMap> {
 
     /**
      * stuff

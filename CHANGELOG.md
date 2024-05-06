@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 
 ## 1.1.0 - 
+* Remove minification from the build step. 
+* Base FsmRx class renamed to FmsRxInheritable (minor breaking change)
 * generateStateTransition renamed to generateStateDiagramTransition (minor breaking change)
 * assertCannotReach made static and now accessible via FsmRx derived classes (minor breaking change)
 * destroy$, nextChangeStateTransition$, override$ now return as observables from a getter rather than subjects.(minor breaking change) 

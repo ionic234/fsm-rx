@@ -1,4 +1,4 @@
-import { BaseStateData, FSMInitStateData, StateData } from "../../fsm-rx-types";
+import { BaseStateData, FSMInitStateData, StateData } from "../../types/fsm-rx-types";
 import { BehaviorSubject, Observable, Subject, catchError, debounceTime, filter, of, switchMap, take, takeUntil, timeout } from "rxjs";
 
 /**

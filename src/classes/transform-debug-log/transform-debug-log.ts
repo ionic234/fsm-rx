@@ -1,6 +1,6 @@
 //import { BaseStateData, DebugLogEntry, TransitionResult, TransitionTypes } from "fsm-rx";
 
-import { BaseStateData, DebugLogEntry, TransitionResult, TransitionTypes } from "../../fsm-rx-types";
+import { BaseStateData, DebugLogEntry, TransitionResult, TransitionTypes } from "../../types/fsm-rx-types";
 
 /**
  * The type of the debug entry. 

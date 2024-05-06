@@ -1,7 +1,7 @@
 import { Observable, Subject } from "rxjs";
 import { RunHelpers, TestScheduler } from 'rxjs/testing';
-import { FsmRx } from ".";
-import { BaseStateData, CanLeaveToStatesMap, CurrentStateInfo, DebugLogEntry, FSMInit, FSMInitStateData, FSMTerminate, FsmConfig, OnEnterStateChanges, OnLeaveStateChanges, OnOverrideStateChanges, OnUpdateStateChanges, StateDiagramDirections, StateMap, StateOverride, StateTransition, TransitionRejection } from './fsm-rx-types';
+import { FsmRxInheritable } from "../..";
+import { BaseStateData, CanLeaveToStatesMap, CurrentStateInfo, DebugLogEntry, FSMInit, FSMInitStateData, FSMTerminate, FsmConfig, OnEnterStateChanges, OnLeaveStateChanges, OnOverrideStateChanges, OnUpdateStateChanges, StateDiagramDirections, StateMap, StateOverride, StateTransition, TransitionRejection } from '../../types/fsm-rx-types';
 
 type TestStatesA = "state1" | "state2";
 type TestStatesB = "state2" | "state3";
@@ -37,11 +37,11 @@ interface TestCanLeaveToStatesMap extends CanLeaveToStatesMap<TestStates> {
 
 describe('FsmRx Initialization', () => {
 
-  class TestFSM extends FsmRx<
+  class TestFSM extends FsmRxInheritable<
     TestStates,
     BaseStateData<TestStates>,
     TestCanLeaveToStatesMap
-  >  {
+  > {
     protected override stateMap: StateMap<TestStates, BaseStateData<TestStates>, TestCanLeaveToStatesMap> = {
       state1: {
         canLeaveToStates: { state2: true },
@@ -138,11 +138,11 @@ describe('FsmRx Update Tests', () => {
 
   let updateState1Spy: jest.Mock<boolean | void, [changes: OnUpdateStateChanges<TestStates, "state1", TestData, TestCanLeaveToStatesMap>]>;
 
-  class TestFSM extends FsmRx<
+  class TestFSM extends FsmRxInheritable<
     TestStates,
     TestData,
     TestCanLeaveToStatesMap
-  >  {
+  > {
 
     public override stateMap: StateMap<TestStates, TestData, TestCanLeaveToStatesMap> = {
       state1: {
@@ -765,11 +765,11 @@ describe('FsmRx Change Tests', () => {
   let onLeaveState1Spy: jest.Mock<boolean | void, [changes: OnLeaveStateChanges<TestStates, "state1", TestData, TestCanLeaveToStatesMap>]>;
   let onLeaveState3Spy: jest.Mock<boolean | void, [changes: OnLeaveStateChanges<TestStates, "state3", TestData, TestCanLeaveToStatesMap>]>;
 
-  class TestFSM extends FsmRx<
+  class TestFSM extends FsmRxInheritable<
     TestStates,
     TestData,
     TestCanLeaveToStatesMap
-  >  {
+  > {
     protected override stateMap: StateMap<TestStates, TestData, TestCanLeaveToStatesMap> = {
       state1: {
         canEnterFromStates: { FSMInit: true },
@@ -1745,11 +1745,11 @@ describe("FsmRx FsmConfig", () => {
   let updateState1Spy: jest.Mock<boolean | void, [changes: OnUpdateStateChanges<TestStates, "state1", TestData, TestCanLeaveToStatesMap>]>;
   let onEnterState1Spy: jest.Mock<boolean | void, [changes: OnEnterStateChanges<TestStates, "state1", TestData, TestCanLeaveToStatesMap>]>;
 
-  class TestFSM extends FsmRx<
+  class TestFSM extends FsmRxInheritable<
     TestStates,
     BaseTestData,
     TestCanLeaveToStatesMap
-  >  {
+  > {
 
     public override stateMap: StateMap<TestStates, BaseTestData, TestCanLeaveToStatesMap> = {
       state1: {
@@ -2383,11 +2383,11 @@ describe("FsmRx FsmConfig", () => {
 
 describe("FsmRx OverrideCurrentState", () => {
 
-  class TestFSM extends FsmRx<
+  class TestFSM extends FsmRxInheritable<
     TestStates,
     BaseStateData<TestStates>,
     TestCanLeaveToStatesMap
-  >  {
+  > {
     protected override stateMap: StateMap<TestStates, BaseStateData<TestStates>, TestCanLeaveToStatesMap> = {
       state1: {
         canEnterFromStates: { FSMInit: true },
@@ -2711,7 +2711,7 @@ describe("FsmRx OverrideCurrentState", () => {
 
 describe("FsmRx State Diagram", () => {
 
-  class TestFSM extends FsmRx<
+  class TestFSM extends FsmRxInheritable<
     TestStates,
     BaseStateData<TestStates>,
     TestCanLeaveToStatesMap
@@ -2830,11 +2830,11 @@ describe("FsmRx State Diagram", () => {
 
 describe('FsmRx Destroy', () => {
 
-  class TestFSM extends FsmRx<
+  class TestFSM extends FsmRxInheritable<
     TestStates,
     BaseStateData<TestStates>,
     TestCanLeaveToStatesMap
-  >  {
+  > {
     protected override stateMap: StateMap<TestStates, BaseStateData<TestStates>, TestCanLeaveToStatesMap> = {
       state1: {
         canLeaveToStates: { state2: true },
