@@ -47,7 +47,7 @@ export abstract class FsmRx<
     protected abstract readonly stateMap: StateMap<TState, TStateData, TCanLeaveToStatesMap>;
 
     /** A configuration object that controls the availability of certain debugging features. */
-    protected resolvedFsmConfig: FsmConfig<TState, TStateData, TCanLeaveToStatesMap>;
+    protected readonly resolvedFsmConfig: FsmConfig<TState, TStateData, TCanLeaveToStatesMap>;
 
     /** If the application is running in dev mode or not. */
     private readonly _isInDevMode: boolean;
